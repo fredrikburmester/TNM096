@@ -34,7 +34,7 @@ public class Puzzle {
                 head = ol.poll();
             }
 
-            if (counter % 100 == 0) {
+            if (counter % 1000 == 0) {
                 clearScreen();
                 System.out.println("Iterations: " + counter);
                 System.out.println("Open list size: " + ol.size());
@@ -62,7 +62,7 @@ public class Puzzle {
                 int fvalue = child.depth + child.heuristic(goal);
                 child.fvalue = fvalue;
 
-                if (!ol.contains(head) && !ol.contains(head)) {
+                if (!ol.contains(child) && !cl.contains(child)) {
                     ol.add(child);
                 }
             }
