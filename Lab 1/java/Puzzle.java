@@ -1,8 +1,15 @@
+import java.util.HashSet;
+
 public class Puzzle {
     public static void main(String[] args) {
         // Open list
-        List ol = new List();
-        List cl = new List();
+        List open_list = new List();
+
+        HashSet<String> open_set = new HashSet<>();
+        HashSet<String> closed_set = new HashSet<>();
+
+        boolean useManhattan = false;
+        boolean useMisplaced = true;
 
         // EASY
         // Node start = new Node(new int[][] {
@@ -24,28 +31,25 @@ public class Puzzle {
                 { 7, 8, 0 }
         }, 0, 0);
 
-        ol.add(start);
-        Node head = ol.poll();
-        int counter = 0;
+        open_list.add(start);
 
+        Node head = open_list.poll();
+        int counter = 0;
         long startTime = System.nanoTime();
+        Node[] children = new Node[4];
+
         while (true) {
             if (counter > 0) {
-                head = ol.poll();
-            }
-
-            if (counter % 1000 == 0) {
-                clearScreen();
-                System.out.println("Iterations: " + counter);
-                System.out.println("Open list size: " + ol.size());
-                System.out.println("Closed list size: " + cl.size());
-                System.out.println("Current node depth: " + head.depth);
+                head = open_list.poll();
             }
 
             if (head == null) {
                 System.err.println("No solution found");
                 System.exit(0);
-                break;
+            }
+
+            if (counter % 1000 == 0) {
+                printStats(counter, head.depth, open_set, closed_set);
             }
 
             if (head.equals(goal)) {
@@ -53,38 +57,53 @@ public class Puzzle {
                 break;
             }
 
-            Node[] children = head.getChildren();
+            children = head.getChildren();
             for (Node child : children) {
                 if (child == null) {
                     continue;
                 }
 
-                int fvalue = child.depth + child.heuristic(goal);
-                child.fvalue = fvalue;
+                child.fvalue = child.depth + child.heuristic(goal, useManhattan, useMisplaced);
 
-                if (!ol.contains(child) && !cl.contains(child)) {
-                    ol.add(child);
+                if (!open_set.contains(child.hash()) && !closed_set.contains(child.hash())) {
+                    open_list.add(child);
+                    open_set.add(child.hash());
                 }
             }
 
-            cl.add(head);
+            // Add to closed set so we don't revisit
+            closed_set.add(head.hash());
 
+            // Keep track of how many nodes we've expanded
             counter++;
         }
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime);
 
-        System.out.println("Depth: " + head.depth);
-        if (duration / 1000000 > 1000) {
-            System.out.println("Time: " + (duration / 1000000000) + "s");
-        } else {
-            System.out.println("Time: " + (duration / 1000000) + "ms");
-        }
+        // Print number of moves to goal
+        System.out.println("Moves: " + head.depth);
+
+        // Print execution time
+        printExecutionTime(startTime, System.nanoTime());
+
+        // Print goal state
         goal.print();
     }
 
-    public static void clearScreen() {
+    public static void printStats(int counter, int depth, HashSet<String> open_set, HashSet<String> closed_set) {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+
+        System.out.println("Iterations: " + counter);
+        System.out.println("Open list size: " + open_set.size());
+        System.out.println("Closed list size: " + closed_set.size());
+        System.out.println("Current node depth: " + depth);
+    }
+
+    public static void printExecutionTime(long startTime, long endTime) {
+        long duration = endTime - startTime;
+        if (duration / 1000000 > 1000) {
+            System.out.println("Execution time: " + (duration / 1000000000) + "s");
+        } else {
+            System.out.println("Execution time: " + (duration / 1000000) + "ms");
+        }
     }
 }
