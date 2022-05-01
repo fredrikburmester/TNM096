@@ -1,12 +1,14 @@
 """
 """
+import json
 import sys
 import time
 import math
 from collections import defaultdict, Counter, deque
 from copy import deepcopy
 from typing import Union
-from sortedcontainers import SortedList, SortedKeyList
+from sortedcontainers import SortedKeyList
+import cProfile
 
 class Node:
     def __init__(self, state, depth):
@@ -27,7 +29,7 @@ class Node:
 
         children = []
         for n in neighbours_4(state, x, y):
-            child_state = move_empty_square_to_neighbour(deepcopy(state), empty_space, n)
+            child_state = move_empty_square_to_neighbour(state, empty_space, n)
             child_node = Node(child_state, self.depth + 1)
             children.append(child_node)
         return children
@@ -39,28 +41,24 @@ class Node:
             print()
         return ""
 
-def neighbours_4(m: Union[list, defaultdict], x, y) -> list:
-    """ returns the neighbours of a point in a matrix or dict """
-    if not isinstance(m, list) and not isinstance(m, defaultdict):
-        assert False, "neighbours_4 only works with list or defaultdict"
-    if len(m) == 0:
-        assert False, "Empty input in neighbours_4"
+    def hash(self):
+        return hash(frozenset(self.state.items()))
 
+
+def neighbours_4(m: Union[list, defaultdict], x, y) -> list:
     def in_range(x, y):
-        if isinstance(m, list):
-            return 0 <= x < len(m[0]) and 0 <= y < len(m)
-        else:
-            return min(m)[0] <= x <= max(m)[0] and min(m)[1] <= y <= max(m)[1]
+        return min(m)[0] <= x <= max(m)[0] and min(m)[1] <= y <= max(m)[1]
     return [p for p in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)] if in_range(*p)]
 
 def move_empty_square_to_neighbour(mapp, empty_space, neighbour):
         """
         Returns a new state with the empty square moved to a neighbour
         """
-        if mapp[empty_space] == 0:
-            mapp[empty_space] = mapp[neighbour]
-            mapp[neighbour] = 0
-            return mapp
+        new_mapp = mapp.copy()
+        if new_mapp[empty_space] == 0:
+            new_mapp[empty_space] = new_mapp[neighbour]
+            new_mapp[neighbour] = 0
+            return new_mapp
 
 def fvalue(current_node, goal_state, h1, h2):
     """ Cost function: Sum of accrued costs from the start to the current node """
@@ -109,7 +107,7 @@ def solve(start, goal, h1=True, h2=True):
     start.fvalue = fvalue(start, goal, h1, h2)
 
     open_list = SortedKeyList([start], key=lambda x: x.fvalue)
-    closed_list = SortedKeyList([], key=lambda x: x.fvalue)
+    closed_list = set()
     moves = []
 
     tests = 0
@@ -117,7 +115,7 @@ def solve(start, goal, h1=True, h2=True):
     while True:
         tests += 1
 
-        if tests % 100 == 0:
+        if tests % 10000 == 0:
             print("\033[H\033[J", end="")
             print("Tests:", tests)
             print("Open list:", len(open_list))
@@ -154,30 +152,15 @@ def solve(start, goal, h1=True, h2=True):
             if child.depth > 31:
                 continue
 
-            if child.state in [n.state for n in open_list]:
-                continue
-            if child.state in [n.state for n in closed_list]:
+            # if child.state in [n.state for n in open_list]:
+            #     continue
+
+            if child.hash() in closed_list:
                 continue
 
             open_list.add(child)
-            
-            # for i, n in enumerate(open_list):
-            #     if n.state == child.state:
-            #         if n.fvalue > child.fvalue:
-            #             open_list.pop(i)
-            #             open_list.add(child)
-            #             continue
 
-            # for i, n in enumerate(closed_list):
-            #     if n.state == child.state:
-            #         if n.fvalue > child.fvalue:
-            #             closed_list.pop(i)
-            #             closed_list.add(child)
-            #             continue
-            # else:
-            #     open_list.add(child)
-
-        closed_list.add(current_node)
+        closed_list.add(current_node.hash())
         moves.append(current_node)  
 
     return moves, current_node
@@ -237,7 +220,11 @@ def read_input():
 def lab1(start, goal, h1, h2):
     """ Part 1"""
     cost = 1
-    closed_list, node = solve(start, goal, h1, h2)
+
+    with cProfile.Profile() as pr:
+        closed_list, node = solve(start, goal, h1, h2)
+
+    pr.print_stats()
 
     print()
     print(node)
