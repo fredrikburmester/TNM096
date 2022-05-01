@@ -86,7 +86,18 @@ public class Node {
         return children;
     }
 
-    public int heuristic(Node goal) {
+    public int heuristic(Node goal, boolean useManhattan, boolean useMisplaced) {
+        if (useManhattan && useMisplaced) {
+            return manhattan_distance_value(goal) + missplaces_tiles_value(goal);
+        } else if (useMisplaced && !useManhattan) {
+            return missplaces_tiles_value(goal);
+        } else if (!useMisplaced && useManhattan) {
+            return manhattan_distance_value(goal);
+        }
+        return 0;
+    }
+
+    public int missplaces_tiles_value(Node goal) {
         int h = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -98,6 +109,20 @@ public class Node {
         return h;
     }
 
+    public int manhattan_distance_value(Node goal) {
+        int m = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (this.state[i][j] != goal.state[i][j] && this.state[i][j] != 0) {
+                    int x = (this.state[i][j] - 1) / 3;
+                    int y = (this.state[i][j] - 1) % 3;
+                    m += Math.abs(i - x) + Math.abs(j - y);
+                }
+            }
+        }
+        return m;
+    }
+
     public int[][] deepcopystate() {
         int[][] newState = new int[3][3];
         for (int i = 0; i < 3; i++) {
@@ -106,5 +131,15 @@ public class Node {
             }
         }
         return newState;
+    }
+
+    public String hash() {
+        String hash = "";
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                hash += this.state[i][j];
+            }
+        }
+        return hash;
     }
 }
