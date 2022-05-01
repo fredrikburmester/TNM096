@@ -13,6 +13,6 @@ In this lab we solve the 8-puzzle using A* search with two different heuristics,
 | missplaces + depth       | 31         | 394ms       |
 | manhattan + depth        | 31         | 55ms        |
 | missplaces + manhattan   | 45         | 2ms         |
-| all three                | 31         | 38ms        |
+| **all three**            | **31**     | **38ms**    |
 
 The shortest solve time with the least amount of moves was obtained by using all three heuristics.
