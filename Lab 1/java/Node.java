@@ -4,11 +4,13 @@ public class Node {
     int fvalue;
     int depth;
     int[][] state;
+    Node parent;
 
-    public Node(int[][] state, int depth, int fvalue) {
+    public Node(int[][] state, int depth, int fvalue, Node parent) {
         this.state = state;
         this.depth = depth;
         this.fvalue = fvalue;
+        this.parent = parent;
     }
 
     @Override
@@ -30,7 +32,11 @@ public class Node {
     public void print() {
         for (int i = 0; i < state.length; i++) {
             for (int j = 0; j < state[i].length; j++) {
-                System.out.print(state[i][j] + " ");
+                if (state[i][j] == 0) {
+                    System.out.print("\u001B[31m" + state[i][j] + "\u001B[0m ");
+                } else {
+                    System.out.print(state[i][j] + " ");
+                }
             }
             System.out.println();
         }
@@ -48,7 +54,7 @@ public class Node {
                         int[][] newState = this.deepcopystate();
                         newState[j][k] = newState[j - 1][k];
                         newState[j - 1][k] = 0;
-                        children[i] = new Node(newState, this.depth + 1, this.fvalue);
+                        children[i] = new Node(newState, this.depth + 1, this.fvalue, this);
                         i++;
                     }
 
@@ -59,7 +65,7 @@ public class Node {
                         int[][] newState = this.deepcopystate();
                         newState[j][k] = newState[j + 1][k];
                         newState[j + 1][k] = 0;
-                        children[i] = new Node(newState, this.depth + 1, this.fvalue);
+                        children[i] = new Node(newState, this.depth + 1, this.fvalue, this);
                         i++;
                     }
 
@@ -68,7 +74,7 @@ public class Node {
                         int[][] newState = this.deepcopystate();
                         newState[j][k] = newState[j][k - 1];
                         newState[j][k - 1] = 0;
-                        children[i] = new Node(newState, this.depth + 1, this.fvalue);
+                        children[i] = new Node(newState, this.depth + 1, this.fvalue, this);
                         i++;
                     }
 
@@ -77,7 +83,7 @@ public class Node {
                         int[][] newState = this.deepcopystate();
                         newState[j][k] = newState[j][k + 1];
                         newState[j][k + 1] = 0;
-                        children[i] = new Node(newState, this.depth + 1, this.fvalue);
+                        children[i] = new Node(newState, this.depth + 1, this.fvalue, this);
                         i++;
                     }
                 }
