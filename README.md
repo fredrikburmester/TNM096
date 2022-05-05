@@ -1,10 +1,13 @@
 # TNM096
+
 Labs in the course TNM096 at Linköping University
 
 ## Lab 1 - 8 Puzzle
+
 In this lab we solve the 8-puzzle using A* search with two different heuristics, missplaced tiles and manhattan distans.
 
-### Solve times (Java):
+### Solve times (Java)
+
 | Heuristic                | No Moves   | Time        |
 | ------------------------ |:----------:| -----------:|
 | missplaces tiles         | 159        | 10ms        |
@@ -16,3 +19,7 @@ In this lab we solve the 8-puzzle using A* search with two different heuristics,
 | **all three**            | **31**     | **38ms**    |
 
 The shortest solve time with the least amount of moves was obtained by using all three heuristics.
+
+## Lab 2 - Sudoku
+
+## Lab 3 - CNF Solver
