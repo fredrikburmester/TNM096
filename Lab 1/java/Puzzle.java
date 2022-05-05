@@ -23,13 +23,13 @@ public class Puzzle {
                 { 6, 4, 7 },
                 { 8, 5, 0 },
                 { 3, 2, 1 }
-        }, 0, 0);
+        }, 0, 0, null);
 
         Node goal = new Node(new int[][] {
                 { 1, 2, 3 },
                 { 4, 5, 6 },
                 { 7, 8, 0 }
-        }, 0, 0);
+        }, 0, 0, null);
 
         open_list.add(start);
 
@@ -48,12 +48,12 @@ public class Puzzle {
                 System.exit(0);
             }
 
-            if (counter % 1000 == 0) {
-                printStats(counter, head.depth, open_set, closed_set);
-            }
+            // if (counter % 1000 == 0) {
+            // printStats(counter, head.depth, open_set, closed_set);
+            // }
 
             if (head.equals(goal)) {
-                System.out.println("Goal found!");
+                System.out.println("\nGoal found!");
                 break;
             }
 
@@ -79,13 +79,94 @@ public class Puzzle {
         }
 
         // Print number of moves to goal
-        System.out.println("Moves: " + head.depth);
 
         // Print execution time
         printExecutionTime(startTime, System.nanoTime());
+        System.out.println();
 
-        // Print goal state
-        goal.print();
+        // Print path to goal
+        System.out.println("Moves: \u001B[32m" + head.depth + "\u001B[0m");
+        printPath(head);
+    }
+
+    public static void printPath(Node head) {
+        Node[] path = new Node[head.depth + 1];
+        Node current = head;
+        Node previous = head;
+        String stringPath = "";
+
+        while (current != null) {
+            previous = current;
+            path[current.depth] = current;
+            current = current.parent;
+
+            if (current != null) {
+                stringPath += getMoveLetter(current, previous);
+            }
+        }
+
+        System.out.println("Path to goal:");
+        // print string in reverse
+        for (int i = stringPath.length() - 1; i >= 0; i--) {
+            System.out.print("\u001B[33m" + stringPath.charAt(i) + "\u001B[0m");
+        }
+        System.out.println();
+        for (int i = 0; i < path.length; i++) {
+            if (path[i] != null) {
+                path[i].print();
+                System.out.println();
+                System.out.println("  |");
+                System.out.println("  v");
+                System.out.println();
+            }
+        }
+    }
+
+    public static String getMoveLetter(Node n1, Node n2) {
+        String move = "";
+
+        int[][] state1 = n1.state;
+        int[][] state2 = n2.state;
+
+        int x1 = 0;
+        int y1 = 0;
+        int x2 = 0;
+        int y2 = 0;
+
+        // get location of 0
+        for (int i = 0; i < state1.length; i++) {
+            for (int j = 0; j < state1[i].length; j++) {
+                if (state1[i][j] == 0) {
+                    x1 = i;
+                    y1 = j;
+                }
+            }
+        }
+
+        for (int i = 0; i < state2.length; i++) {
+            for (int j = 0; j < state2[i].length; j++) {
+                if (state2[i][j] == 0) {
+                    x2 = i;
+                    y2 = j;
+                }
+            }
+        }
+
+        if (x1 == x2) {
+            if (y1 < y2) {
+                move = "R";
+            } else {
+                move = "L";
+            }
+        } else if (y1 == y2) {
+            if (x1 < x2) {
+                move = "D";
+            } else {
+                move = "U";
+            }
+        }
+
+        return move;
     }
 
     public static void printStats(int counter, int depth, HashSet<String> open_set, HashSet<String> closed_set) {
@@ -101,9 +182,9 @@ public class Puzzle {
     public static void printExecutionTime(long startTime, long endTime) {
         long duration = endTime - startTime;
         if (duration / 1000000 > 1000) {
-            System.out.println("Execution time: " + (duration / 1000000000) + "s");
+            System.out.println("Execution time: \u001B[32m" + (duration / 1000000000) + "s\u001B[0m");
         } else {
-            System.out.println("Execution time: " + (duration / 1000000) + "ms");
+            System.out.println("Execution time: \u001B[32m" + (duration / 1000000) + "ms\u001B[0m");
         }
     }
 }
