@@ -163,7 +163,7 @@ def proper_subset(A, B):
         return True
     return False
 
-def part1():
+def tests():
     # Test 1
     A = Clause(set({1,2}), set({3}))
     B = Clause(set({2,3}), set({}))
@@ -307,7 +307,7 @@ def part1():
 
     return 0
 
-def part2():
+def solve():
     A = Clause("-sun V -money V ice", None)
     B = Clause("-money V ice V movie", None)
     C = Clause("-movie V money", None)
@@ -325,12 +325,12 @@ def part2():
 
 def main():
     t0 = time.time()
-    result = part1()
+    tests()
     t1 = time.time()
     print(f"\n{round(t1-t0, 4)} seconds\n")
 
     t0 = time.time()
-    result = part2()
+    solve()
     t1 = time.time()
     print(f"\n{round(t1-t0, 4)} seconds\n")
 
