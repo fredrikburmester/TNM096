@@ -1,4 +1,5 @@
 # TNM096
+> If this helped you in any way, consider giving this repo a star 😄 ⭐️
 
 Labs in the course TNM096 at Linköping University
 
